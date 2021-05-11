@@ -57,7 +57,7 @@ public class Games {
 
         Map<Boolean, List<Game>> homeAwayMap = null;
         
-        Map<Boolean, List<Game>> homeAwayMap1 = games.stream().collect(Collectors.partitioningBy(p->p.getAway().equals(BAYERN)));
+        Map<Boolean, List<Game>> homeAwayMap1 = games.stream().collect(Collectors.partitioningBy(p->p.getHome().equals(BAYERN)));
 
         System.out.println("*** HOME ***");
         homeAwayMap1.get(true).forEach(System.out::println);
@@ -72,7 +72,9 @@ public class Games {
 
         Map<Result, List<Game>> wonLostDrawMap = null;
         
-       // Map<Result, List<Game>> wonLostDrawMap = games.stream().collect(res-> new , null, null)
+       // Map<Result, List<Game>> wonLostDrawMap = games.stream().collect(Collectors.groupingBy(game-> {
+        //	if(game.getHomeGoeals()>game.getAwayGoals
+       // }))
         
       //  System.out.println("*** WON ***");
       //  wonLostDrawMap.get(Result.WON).forEach(System.out::println);
@@ -88,7 +90,7 @@ public class Games {
         // (Lösung mit mapToInt)
         double avgGoalsPerGame1 = 0.0;
         
-       games.stream().mapToInt(av-> av.goalCount()).average();
+        avgGoalsPerGame1 = games.stream().mapToInt(Game::goalCount).average().orElse(0.0);
         
         
         
@@ -99,7 +101,7 @@ public class Games {
         
         double avgGoalsPerGame2 = 0.0;
 
-        avgGoalsPerGame2 = games.stream().collect(Collectors.averagingDouble(av->av.goalCount()));
+        avgGoalsPerGame2 = games.stream().collect(Collectors.averagingDouble(Game::goalCount));
         
         System.out.printf("Average goals per game: %.2f\n", avgGoalsPerGame2);
         System.out.println();
@@ -111,7 +113,7 @@ public class Games {
         // (Lösung mit double filter und count)
         long wonHomeGamesCount = -1;
         
-        wonHomeGamesCount = games.stream().filter(h->h.getHome().equals(BAYERN)).count();
+        wonHomeGamesCount = games.stream().filter(h->h.getHome().equals(BAYERN)).filter(game->game.getHomeGoals()> game.getAwayGoals()).count();
 
         System.out.println(BAYERN + " won " + wonHomeGamesCount + " games at home");
         System.out.println();
@@ -122,7 +124,7 @@ public class Games {
         // (Lösung mit sorted und findFirst)
         Game leastNumberOfGoalsGame1 = null;
         
-        
+        leastNumberOfGoalsGame1 = games.stream().sorted(Comparator.comparing(Game::goalCount)).findFirst().get();
 
         System.out.println("Game with least number of goals: " + leastNumberOfGoalsGame1);
 
@@ -130,6 +132,8 @@ public class Games {
         // (Lösung mit min und Comparator.comparingInt)
         Game leastNumberOfGoalsGame2 = null;
 
+        leastNumberOfGoalsGame2 = games.stream().min(Comparator.comparing(Game::goalCount)).get();
+        
         System.out.println("Game with least number of goals: " + leastNumberOfGoalsGame2);
         System.out.println();
 
@@ -139,6 +143,8 @@ public class Games {
         // (Lösung mit einem stream und Collectors.joining)
         String startingTimesString = null;
 
+        //startingTimesString = games.stream().map(Game::getTime).distinct().collect(Collectors.joining("| ");
+        
         System.out.println("Distinct starting times: " + startingTimesString);
         System.out.println();
 
@@ -149,6 +155,8 @@ public class Games {
         // (Lösung mit anyMatch)
 
         boolean bayernWon = false;
+        
+        //bayernWon = games.stream()
 
         System.out.println("Bayern won away game with at least 2 goals difference: " + (bayernWon ? "yes" : "no"));
         System.out.println();
@@ -162,7 +170,12 @@ public class Games {
                 .collect(Collectors.groupingBy(Game::getHome));
         List<Game> flattenedGames = null;
 
-        flattenedGames.forEach(System.out::println);
+        List<Game> flattenedGames1 = games2019ByHomeTeam
+        							.values()
+        							.stream()
+        							.flatMap(Collection::stream).collect(toList());
+        
+        flattenedGames1.forEach(System.out::println);
     }
 
 	private static double getAsDouble(OptionalDouble aver) {
