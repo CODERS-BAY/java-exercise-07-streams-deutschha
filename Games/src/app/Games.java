@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +20,7 @@ import static java.util.stream.Collectors.toList;
 
 public class Games {
 
-    private static final Path CSV = Paths.get("games.csv");
+    private static final Path CSV = Paths.get("Games/games.csv");
     private static final String BUNDESLIGA = "BUNDESLIGA";
     private static final String BAYERN = "FC Bayern Muenchen";
 
@@ -41,7 +42,11 @@ public class Games {
         // (Lösung mit filter)
 
         long bundesligaGameCount = -1;
-
+        
+        long amount = games.stream().filter(b-> b.getInfo().contains(BUNDESLIGA)).count();
+        
+        bundesligaGameCount = amount;
+        
         System.out.println("There were " + bundesligaGameCount + " Bundesliga games");
         System.out.println();
 
@@ -51,11 +56,13 @@ public class Games {
         // (Lösung mit partitionBy)
 
         Map<Boolean, List<Game>> homeAwayMap = null;
+        
+        Map<Boolean, List<Game>> homeAwayMap1 = games.stream().collect(Collectors.partitioningBy(p->p.getAway().equals(BAYERN)));
 
         System.out.println("*** HOME ***");
-        homeAwayMap.get(true).forEach(System.out::println);
+        homeAwayMap1.get(true).forEach(System.out::println);
         System.out.println("*** AWAY ***");
-        homeAwayMap.get(false).forEach(System.out::println);
+        homeAwayMap1.get(false).forEach(System.out::println);
         System.out.println();
 
         // -------------------
@@ -64,27 +71,36 @@ public class Games {
         // (Lösung mit groupingBy)
 
         Map<Result, List<Game>> wonLostDrawMap = null;
-
-        System.out.println("*** WON ***");
-        wonLostDrawMap.get(Result.WON).forEach(System.out::println);
-        System.out.println("*** DRAW ***");
-        wonLostDrawMap.get(Result.DRAW).forEach(System.out::println);
-        System.out.println("*** LOST ***");
-        wonLostDrawMap.get(Result.LOST).forEach(System.out::println);
-        System.out.println();
-
+        
+       // Map<Result, List<Game>> wonLostDrawMap = games.stream().collect(res-> new , null, null)
+        
+      //  System.out.println("*** WON ***");
+      //  wonLostDrawMap.get(Result.WON).forEach(System.out::println);
+      //  System.out.println("*** DRAW ***");
+      //  wonLostDrawMap.get(Result.DRAW).forEach(System.out::println);
+      //  System.out.println("*** LOST ***");
+      //  wonLostDrawMap.get(Result.LOST).forEach(System.out::println);
+      //  System.out.println();
+		
         // -------------------
 
         // TODO Wie viele Tore wurden im Durchschnitt pro Spiel erzielt? mapToInt
         // (Lösung mit mapToInt)
         double avgGoalsPerGame1 = 0.0;
-
+        
+       games.stream().mapToInt(av-> av.goalCount()).average();
+        
+        
+        
         System.out.printf("Average goals per game: %.2f\n", avgGoalsPerGame1);
 
         // TODO Wie viele Tore wurden im Durchschnitt pro Spiel erzielt? averagingDouble
         // (Lösung mit withCollectors.averagingDouble)
+        
         double avgGoalsPerGame2 = 0.0;
 
+        avgGoalsPerGame2 = games.stream().collect(Collectors.averagingDouble(av->av.goalCount()));
+        
         System.out.printf("Average goals per game: %.2f\n", avgGoalsPerGame2);
         System.out.println();
 
@@ -94,6 +110,8 @@ public class Games {
         // (home equals BAYERN)?
         // (Lösung mit double filter und count)
         long wonHomeGamesCount = -1;
+        
+        wonHomeGamesCount = games.stream().filter(h->h.getHome().equals(BAYERN)).count();
 
         System.out.println(BAYERN + " won " + wonHomeGamesCount + " games at home");
         System.out.println();
@@ -103,6 +121,8 @@ public class Games {
         // TODO Was war das Spiel mit den wenigsten Toren? sorted findFirst
         // (Lösung mit sorted und findFirst)
         Game leastNumberOfGoalsGame1 = null;
+        
+        
 
         System.out.println("Game with least number of goals: " + leastNumberOfGoalsGame1);
 
@@ -144,4 +164,9 @@ public class Games {
 
         flattenedGames.forEach(System.out::println);
     }
+
+	private static double getAsDouble(OptionalDouble aver) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
